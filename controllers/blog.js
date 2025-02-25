@@ -1,14 +1,36 @@
 const router = require('express').Router();
+const { Op } = require('sequelize');
 const { Blog, User } = require('../models');
 const { userExtractor } = require('../utils/middleware');
 
 router.get('/', async (req, resp) => {
+  let where = {};
+  //iLike was advertised as case insensitive, but it does not really work
+  if (req.query.search) {
+    where = {
+      [Op.or]: [
+        {
+          title: {
+            [Op.substring]: req.query.search.toLowerCase(),
+          },
+        },
+        {
+          author: {
+            [Op.substring]: req.query.search.toLowerCase(),
+          },
+        },
+      ],
+    };
+  }
+
   const blogs = await Blog.findAll({
     attributes: { exclude: ['userId'] },
     include: {
       model: User,
       attributes: ['name', 'username'],
     },
+    order: [['likes', 'DESC']],
+    where,
   });
   resp.json(blogs);
 });
