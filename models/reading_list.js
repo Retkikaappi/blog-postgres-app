@@ -20,6 +20,11 @@ ReadingList.init(
       allowNull: false,
       references: { model: 'blogs', key: 'id' },
     },
+    isRead: {
+      type: DataTypes.BOOLEAN,
+      allowNull: false,
+      defaultValue: false,
+    },
   },
   {
     sequelize,

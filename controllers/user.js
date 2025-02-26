@@ -7,7 +7,7 @@ router.get('/', async (req, resp) => {
     include: [
       {
         model: Blog,
-        as: 'readingList',
+        as: 'readings',
         attributes: {
           exclude: ['createdAt', 'updatedAt', 'yearWritten', 'userId'],
         },
