@@ -24,6 +24,9 @@ const errorMiddleware = (error, req, resp, next) => {
   if (error.name === 'SequelizeValidationError') {
     const errMsg = error.errors.map((e) => e.message);
     resp.status(400).json({ error: errMsg });
+  } else if (error.name === 'SequelizeUniqueConstraintError') {
+    const errMsg = error.errors.map((e) => e.message);
+    resp.status(400).json({ error: errMsg });
   } else if (error.name === 'TypeError') {
     resp
       .status(400)

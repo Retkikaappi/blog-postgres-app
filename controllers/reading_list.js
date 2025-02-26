@@ -1,6 +1,6 @@
 const router = require('express').Router();
 const { ReadingList } = require('../models');
-const { findByPk } = require('../models/blog');
+const { userExtractor } = require('../utils/middleware');
 
 router.post('/', async (req, resp, next) => {
   try {
@@ -11,10 +11,16 @@ router.post('/', async (req, resp, next) => {
   }
 });
 
-router.put('/:id', async (req, resp, next) => {
-  console.log(req.params.id, req.body.read);
+router.put('/:id', userExtractor, async (req, resp, next) => {
   try {
     const item = await ReadingList.findByPk(req.params.id);
+    //kind of confusing to mix read and isRead, but I am keeping it
+    if (req.user.id !== item.userId) {
+      resp.status(401).json({
+        error: 'You can only mark your own readinglist items as read',
+      });
+      return;
+    }
     const updatedItem = await item.update({ isRead: req.body.read });
     resp.json(updatedItem);
   } catch (error) {
