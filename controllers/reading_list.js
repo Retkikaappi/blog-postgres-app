@@ -1,8 +1,9 @@
 const router = require('express').Router();
 const { ReadingList } = require('../models');
-const { userExtractor } = require('../utils/middleware');
+const { userExtractor, checkSession } = require('../utils/middleware');
 
 router.post('/', async (req, resp, next) => {
+  // this was only supposed to function with manually posting the correct user and blog
   try {
     const listItem = await ReadingList.create(req.body);
     resp.json(listItem);
@@ -11,7 +12,7 @@ router.post('/', async (req, resp, next) => {
   }
 });
 
-router.put('/:id', userExtractor, async (req, resp, next) => {
+router.put('/:id', userExtractor, checkSession, async (req, resp, next) => {
   try {
     const item = await ReadingList.findByPk(req.params.id);
     //kind of confusing to mix read and isRead, but I am keeping it

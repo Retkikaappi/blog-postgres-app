@@ -1,7 +1,7 @@
 const router = require('express').Router();
 const { Op } = require('sequelize');
 const { Blog, User } = require('../models');
-const { userExtractor } = require('../utils/middleware');
+const { userExtractor, checkSession } = require('../utils/middleware');
 
 router.get('/', async (req, resp) => {
   let where = {};
@@ -35,7 +35,7 @@ router.get('/', async (req, resp) => {
   resp.json(blogs);
 });
 
-router.post('/', userExtractor, async (req, resp, next) => {
+router.post('/', userExtractor, checkSession, async (req, resp, next) => {
   try {
     const newBlog = await Blog.create({ ...req.body, userId: req.user.id });
     resp.json(newBlog);
@@ -56,7 +56,7 @@ router.get('/:id', paramExtractor, async (req, resp) => {
   resp.json(req.blog);
 });
 
-router.put('/:id', paramExtractor, async (req, resp, next) => {
+router.put('/:id', paramExtractor, checkSession, async (req, resp, next) => {
   try {
     const updatedBlog = await req.blog.update({ likes: req.body.likes });
     resp.json({ likes: updatedBlog.likes });
@@ -68,6 +68,7 @@ router.put('/:id', paramExtractor, async (req, resp, next) => {
 router.delete(
   '/:id',
   userExtractor,
+  checkSession,
   paramExtractor,
   async (req, resp, next) => {
     const blogToDelete = req.blog;

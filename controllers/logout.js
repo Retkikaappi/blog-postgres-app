@@ -1,7 +1,6 @@
 const router = require('express').Router();
 const { User, Session } = require('../models');
-const jws = require('jsonwebtoken');
-const { PASS, SECRET } = require('../utils/config');
+const { userExtractor } = require('../utils/middleware');
 
 router.post('/', async (req, resp, next) => {
   try {
@@ -19,11 +18,9 @@ router.post('/', async (req, resp, next) => {
     }
 
     const activateSesh = await Session.findOne({ where: { userId: user.id } });
-    console.log(activateSesh);
 
     if (!activateSesh) {
       await Session.create({ user_id: user.id });
-      console.log('******************* created');
     }
 
     const token = jws.sign({ username: user.username, id: user.id }, SECRET);
@@ -31,6 +28,18 @@ router.post('/', async (req, resp, next) => {
   } catch (error) {
     next(error);
   }
+});
+
+router.delete('/', userExtractor, async (req, resp) => {
+  const sesh = await Session.findOne({ where: { userId: req.user.id } });
+
+  if (!sesh) {
+    resp.status(200).json({ message: 'Already logged out' });
+    return;
+  }
+
+  await sesh.destroy();
+  resp.status(200).json({ message: 'Log out succesful' });
 });
 
 module.exports = router;

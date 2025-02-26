@@ -1,5 +1,6 @@
 const jwt = require('jsonwebtoken');
 const { SECRET } = require('./config');
+const { Session } = require('../models');
 
 const userExtractor = (req, resp, next) => {
   const bearer = req.get('authorization');
@@ -15,6 +16,22 @@ const userExtractor = (req, resp, next) => {
     return;
   }
 
+  next();
+};
+
+// checks if there is an active session
+const checkSession = async (req, resp, next) => {
+  try {
+    console.log(req.user.id);
+    const activateSesh = await Session.findOne({
+      where: { userId: req.user.id },
+    });
+    if (!activateSesh) {
+      resp.status(401).json({ error: 'Session expired please log in again' });
+    }
+  } catch (error) {
+    next(error);
+  }
   next();
 };
 
@@ -38,4 +55,4 @@ const errorMiddleware = (error, req, resp, next) => {
   next(error);
 };
 
-module.exports = { errorMiddleware, userExtractor };
+module.exports = { errorMiddleware, userExtractor, checkSession };

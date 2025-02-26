@@ -1,6 +1,5 @@
 const router = require('express').Router();
 const { User, Blog, ReadingList } = require('../models');
-const { Op } = require('sequelize');
 router.get('/', async (req, resp) => {
   const users = await User.findAll({
     attributes: ['id', 'name', 'username'],
@@ -41,7 +40,7 @@ router.get('/:username', async (req, resp, next) => {
       where: {
         username: req.params.username,
       },
-      attributes: { exclude: ['createdAt', 'updatedAt'] },
+      attributes: ['id', 'name', 'username', 'disabled'],
       include: [
         {
           model: Blog,
@@ -67,6 +66,7 @@ router.get('/:username', async (req, resp, next) => {
 });
 
 router.put('/:username', async (req, resp, next) => {
+  // not adding login-check here on purpose, because it was not called for
   try {
     const user = await User.findOne({
       where: {

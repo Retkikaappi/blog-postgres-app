@@ -7,6 +7,7 @@ const userRouter = require('./controllers/user');
 const loginRouter = require('./controllers/login');
 const authorRouter = require('./controllers/author');
 const listRouter = require('./controllers/reading_list');
+const logoutRouter = require('./controllers/logout');
 const { errorMiddleware, tokenExtractor } = require('./utils/middleware');
 
 app.use(express.json());
@@ -16,7 +17,7 @@ app.use('/api/users', userRouter);
 app.use('/api/login', loginRouter);
 app.use('/api/authors', authorRouter);
 app.use('/api/readingLists', listRouter);
-
+app.use('/api/logout', logoutRouter);
 app.use(errorMiddleware);
 
 const connect = async () => {
